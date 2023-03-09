@@ -26,11 +26,6 @@ public abstract class Unit : MonoBehaviour
     private protected GameObject _attackEnemy;
     private protected GameObject _attackingObj;
 
-    private void Update()
-    {
-        Die();
-    }
-
     private void Awake()
     {
         if (TryGetComponent<Animator>(out Animator anim))
@@ -39,7 +34,7 @@ public abstract class Unit : MonoBehaviour
         }
     }
 
-    protected void AttackWithAnimation(GameObject attackObj)
+    protected void AttackWithAnimation(GameObject attackObj) // Assign a game object with a EnemyDamageHit script to the attacking hand of the enemy
     {
         if (_animator != null)
         {
@@ -50,10 +45,6 @@ public abstract class Unit : MonoBehaviour
                 _attackingObj = attackObj;
                 _animator.SetBool("Run", false);
                 _animator.SetTrigger("Attack");
-            }
-            else
-            {
-                _animator.SetBool("Run", true);
             }
         }
         else
@@ -189,6 +180,8 @@ public abstract class Unit : MonoBehaviour
     public virtual void TakeDamage(float damageCount, GameObject whoAttack = null)
     {
         _hp -= damageCount;
+
+        Die();
     }
 
     public bool IsAlive()

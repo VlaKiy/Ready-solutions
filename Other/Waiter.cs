@@ -3,23 +3,24 @@ using UnityEngine;
 
 public class Waiter : MonoBehaviour
 {
-    private bool _isWaiterEnd = false;
+    private bool _isWaiterEnd = true;
+    private float _timeSeconds = 1f;
 
-    public void StartWaiter()
+    public void StartWaiter(float seconds)
     {
+        SetTimeSeconds(seconds);
         StartCoroutine(MakeWaiter());
     }
 
     IEnumerator MakeWaiter()
     {
-        var timer = 1;
         _isWaiterEnd = false;
 
-        for (int i = 1; i <= timer; i++)
+        for (int i = 1; i <= _timeSeconds; i++)
         {
             yield return new WaitForSeconds(1);
 
-            if (i == timer)
+            if (i == _timeSeconds)
             {
                 _isWaiterEnd = true;
             }
@@ -29,5 +30,14 @@ public class Waiter : MonoBehaviour
     public bool GetWaiterStatus()
     {
         return _isWaiterEnd;
+    }
+
+    public float GetTimeSeconds()
+    {
+        return _timeSeconds;
+    }
+    private void SetTimeSeconds(float seconds)
+    {
+        _timeSeconds = seconds;
     }
 }

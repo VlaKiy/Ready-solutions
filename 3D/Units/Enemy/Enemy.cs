@@ -1,12 +1,9 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(BoxCollider))]
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(RandomDrop))]
 
 public class Enemy : Unit
 {
-    [SerializeField] private bool _isFollowTo = false;
     [SerializeField] private FollowObject _followObject;
 
     private protected bool _isAttacking = false;
@@ -28,11 +25,6 @@ public class Enemy : Unit
         {
             Debug.LogWarning("Other attack types are temporarily unavailable");
         }
-
-        if (_isFollowTo)
-        {
-            Follow();
-        }
         
         if (_hp <= 0)
         {
@@ -44,11 +36,33 @@ public class Enemy : Unit
                 _animator.SetBool("Run", false);
             }
         }
+
+        if (_followObject != null && _followObject.GetStopFollow())
+        {
+            _animator.SetBool("Run", false);
+        }
+        else if (_followObject == null)
+        {
+            Debug.LogError("Script FollowObject not found. Maybe script FollowObject not assigned");
+        }
+        else
+        {
+            _animator.SetBool("Run", true);
+        }
+
         if (_isAttacking)
         {
             if (_oldAttackingObj == null)
             {
-                _followObject.SetFollowObject(_attackingObj);
+                if (_followObject != null)
+                {
+                    _animator.SetBool("Run", true);
+                    _followObject.SetFollowObject(_attackingObj);
+                }
+                else if (_followObject == null)
+                {
+                    Debug.LogError("Script FollowObject not found. Maybe script FollowObject not assigned");
+                }
             }
             
             if (_attackingObj != null)
@@ -60,38 +74,27 @@ public class Enemy : Unit
 
     public override void TakeDamage(float damageCount, GameObject whoAttack = null)
     {
-        /*_attackingObj = whoAttack;*/
-        _isAttacking = true;
-
         base.TakeDamage(damageCount, whoAttack);
         _animator.SetTrigger("TakeDamage");
+
+        _isAttacking = true;
     }
 
     protected override void Die()
     {
         if (_hp <= 0)
         {
-            if (TryGetComponent<RandomDrop>(out RandomDrop randDrop))
+            // Just uncomment this code if you need
+            /*if (TryGetComponent<RandomDrop>(out RandomDrop randDrop))
             {
                 randDrop.MakeRandomDrop(transform.position);
             }
             else
             {
                 Debug.LogWarning("RandomDrop not found. There will be no drop");
-            }
-            Destroy(gameObject);
-        }
-    }
+            }*/
 
-    private void Follow()
-    {
-        if (_followObject != null)
-        {
-            _followObject.Follow();
-        }
-        else if(_followObject == null)
-        {
-            Debug.LogError("Script FollowObject not found. Maybe script FollowObject not imported");
+            Destroy(gameObject);
         }
     }
 }
