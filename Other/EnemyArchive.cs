@@ -11,11 +11,11 @@ public class EnemyArchive : MonoBehaviour
     {
         if (_addThisObjInEnemies != null)
         {
-            UpdateEnemies(gameObject);
+            Add(gameObject);
         }
     }
 
-    public void UpdateEnemies(GameObject enemy)
+    public void Add(GameObject enemy)
     {
         _enemies.Add(enemy);
     }
