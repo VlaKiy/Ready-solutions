@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(Waiter))]
 public abstract class Unit : MonoBehaviour
 {
     protected enum TypeOfAttack
@@ -34,7 +35,7 @@ public abstract class Unit : MonoBehaviour
         }
     }
 
-    protected void AttackWithAnimation(GameObject attackObj) // Assign a game object with a EnemyDamageHit script to the attacking hand of the enemy
+    private void AttackWithAnimation(GameObject attackObj) // Assign a game object with a EnemyDamageHit script to the attacking hand of the enemy
     {
         if (_animator != null)
         {
@@ -60,22 +61,29 @@ public abstract class Unit : MonoBehaviour
         {
             foreach (var enemy in enemies)
             {
-                if (enemy.TryGetComponent<Enemy>(out Enemy enemyInfo))
+                if (enemy != null)
                 {
-                    if (enemy != null && Vector3.Distance(transform.position, enemy.transform.position) <= _attackDistance && !enemyInfo.IsAlive())
+                    if (enemy.TryGetComponent<Enemy>(out Enemy enemyInfo))
                     {
-                        if (_attackEnemy == enemy)
+                        if (enemy != null && Vector3.Distance(transform.position, enemy.transform.position) <= _attackDistance && enemyInfo.IsAlive())
                         {
-                            return enemy;
-                        }
-                        else if (_attackEnemy != null &&
-                            Vector3.Distance(transform.position, _attackEnemy.transform.position) > _attackDistance)
-                        {
-                            return enemy;
-                        }
-                        else if (_attackEnemy == null)
-                        {
-                            return enemy;
+                            if (_attackEnemy == enemy)
+                            {
+                                return enemy;
+                            }
+                            else if (_attackEnemy != null &&
+                                Vector3.Distance(transform.position, _attackEnemy.transform.position) > _attackDistance)
+                            {
+                                return enemy;
+                            }
+                            else if (_attackEnemy == null)
+                            {
+                                return enemy;
+                            }
+                            else
+                            {
+                                return enemy;
+                            }
                         }
                         else
                         {
@@ -84,13 +92,9 @@ public abstract class Unit : MonoBehaviour
                     }
                     else
                     {
+                        Debug.LogError("Script Enemy not found. Maybe script Enemy not imported");
                         return null;
                     }
-                }
-                else
-                {
-                    Debug.LogError("Script Enemy not found. Maybe script Enemy not imported");
-                    return null;
                 }
             }
             return null;
@@ -106,25 +110,39 @@ public abstract class Unit : MonoBehaviour
     {
         var enemy = ShootChecker();
 
-        if (enemy.TryGetComponent<Enemy>(out Enemy enemyInfo))
+        if (TryGetComponent<Waiter>(out Waiter waiter))
         {
-            _attackEnemy = enemy;
-            enemyInfo.TakeDamage(_damageCount, gameObject);
-            if (enemyInfo.IsAlive())
+            if (enemy != null && waiter.GetWaiterStatus())
             {
-                if (TryGetComponent<Waiter>(out Waiter waiter))
+                var enemyInfo = enemy.GetComponent<Enemy>();
+
+                _attackEnemy = enemy;
+                enemyInfo.TakeDamage(_damageCount, gameObject);
+                if (enemyInfo.IsAlive())
                 {
-                    waiter.StartWaiter();
-                }
-                else
-                {
-                    Debug.LogError("Script Waiter not found");
+                    waiter.StartWaiter(1f);
                 }
             }
         }
         else
         {
-            Debug.LogError("Script Enemy not found");
+            Debug.LogError("Script Waiter not found");
+        }
+    }
+
+    protected void Attack(GameObject attackObj = null)
+    {
+        if (_typeOfAttack == TypeOfAttack.AttackWithAnimation)
+        {
+            AttackWithAnimation(attackObj);
+        }
+        else if (_typeOfAttack == TypeOfAttack.Shoot)
+        {
+            Shoot();
+        }
+        else if (_typeOfAttack != TypeOfAttack.Nothing)
+        {
+            Debug.LogWarning("Other attack types are temporarily unavailable");
         }
     }
 
