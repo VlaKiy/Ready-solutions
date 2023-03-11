@@ -17,15 +17,8 @@ public class Enemy : Unit
 
     private void Update()
     {
-        if (_typeOfAttack == TypeOfAttack.AttackWithAnimation)
-        {
-            AttackWithAnimation(_followObject.GetFollowObject());
-        }
-        else if (_typeOfAttack != TypeOfAttack.Nothing)
-        {
-            Debug.LogWarning("Other attack types are temporarily unavailable");
-        }
-        
+        Attack(_followObject.GetFollowObject());
+
         if (_hp <= 0)
         {
             if (_animator != null)
@@ -78,6 +71,7 @@ public class Enemy : Unit
         _animator.SetTrigger("TakeDamage");
 
         _isAttacking = true;
+        _attackingObj = whoAttack;
     }
 
     protected override void Die()
