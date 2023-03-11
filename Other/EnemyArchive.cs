@@ -11,7 +11,7 @@ public class EnemyArchive : MonoBehaviour
     {
         if (_addThisObjInEnemies != null)
         {
-            Add(gameObject);
+            Add(_addThisObjInEnemies);
         }
     }
 
